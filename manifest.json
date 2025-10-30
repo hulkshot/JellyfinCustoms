@@ -1,0 +1,13 @@
+{
+  "Id": "JellyfinCustoms",
+  "Name": "Jellyfin Customs",
+  "Description": "Pulls live TV streams from your JSON API",
+  "Author": "YourName",
+  "Version": "1.0.0",
+  "TargetApplication": "Jellyfin",
+  "TargetApplicationVersion": "10.8.0",
+  "MinClientVersion": "10.8.0",
+  "Category": "LiveTv",
+  "SourceUrl": "https://github.com/YourUsername/jellyfin-customs",
+  "PluginDownloadUrl": "https://github.com/YourUsername/jellyfin-customs/releases/download/v1.0.0/JellyfinCustoms.zip"
+}
