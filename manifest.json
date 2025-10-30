@@ -9,5 +9,5 @@
   "MinClientVersion": "10.8.0",
   "Category": "LiveTv",
   "SourceUrl": "https://github.com/hulkshot/jellyfincustoms",
-  "PluginDownloadUrl": "https://github.com/hulkshot/jellyfin-customs/releases/download/v1.0.0/JellyfinCustoms.zip"
+  "PluginDownloadUrl": "https://github.com/hulkshot/JellyfinCustoms/archive/refs/heads/main.zip"
 }
