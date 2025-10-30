@@ -1,15 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <AssemblyName>JellyfinCustoms</AssemblyName>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>JellyfinCustoms</RootNamespace>
-    <OutputType>Library</OutputType>
+    <AssemblyName>JellyfinCustoms</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MediaBrowser.Common" Version="10.9.0" />
-    <PackageReference Include="MediaBrowser.Controller" Version="10.9.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="RestSharp" Version="108.0.3" />
+    <PackageReference Include="RestSharp" Version="110.2.0" />
   </ItemGroup>
+
 </Project>
