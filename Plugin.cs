@@ -6,6 +6,7 @@ using MediaBrowser.Model.Plugins;
 using MediaBrowser.Model.Serialization;
 using System.Net.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using JellyfinCustoms.Library;
 
 namespace JellyfinCustoms
@@ -22,7 +23,8 @@ namespace JellyfinCustoms
             IXmlSerializer xmlSerializer,
             ILoggerFactory loggerFactory,
             IHttpClientFactory httpClientFactory,
-            Microsoft.Extensions.Caching.Memory.IMemoryCache memoryCache)
+            Microsoft.Extensions.Caching.Memory.IMemoryCache memoryCache,
+            IServiceScopeFactory scopeFactory)
             : base(applicationPaths, xmlSerializer)
         {
             Instance = this;
@@ -30,7 +32,7 @@ namespace JellyfinCustoms
             _httpClientFactory = httpClientFactory;
 
             // Initialize services
-            _liveLibrary = new LiveSportsLibrary(_logger, httpClientFactory, memoryCache);
+            _liveLibrary = new LiveSportsLibrary(loggerFactory, scopeFactory);
             _liveLibrary.StartBackgroundRefresh();
 
             // Register virtual folder provider
