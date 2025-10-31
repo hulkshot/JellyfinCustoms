@@ -1,37 +1,23 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- Target .NET 8.0 to match Jellyfin packages compatible with net8.0 -->
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-
-    <!-- This ensures the plugin builds as a class library -->
     <OutputType>Library</OutputType>
-
-    <!-- Optional: set nullable reference types -->
     <Nullable>enable</Nullable>
-
-    <!-- Optional: generate XML documentation for plugin classes -->
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-
-    <!-- Plugin assembly info -->
-    <AssemblyName>JellyfinCustoms</AssemblyName>
-    <RootNamespace>JellyfinCustoms</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Core Jellyfin packages (choose latest compatible with net8.0) -->
-    <PackageReference Include="Jellyfin.Common" Version="10.10.7" />
-    <PackageReference Include="Jellyfin.Model" Version="10.10.7" />
-    <PackageReference Include="Jellyfin.Controller" Version="10.10.2" />
-
-    <!-- Optional: Newtonsoft.Json is commonly used for serialization -->
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="RestSharp" Version="110.2.0" />
+    <!--update teh hintpath to match local jellyfin build output paths.-->
+    <!-- Reference Jellyfin server DLLs -->
+    <Reference Include="Jellyfin.Server">
+      <HintPath>G:\VSCode\jellyfin\build\output\Server\Jellyfin.Server.dll</HintPath>
+    </Reference>
+    <Reference Include="Jellyfin.Common">
+      <HintPath>G:\VSCode\jellyfin\build\output\Common\Jellyfin.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Jellyfin.Model">
+      <HintPath>G:\VSCode\jellyfin\build\output\Model\Jellyfin.Model.dll</HintPath>
+    </Reference>
   </ItemGroup>
-
-  <!-- Optional: copy DLLs to output folder after build -->
-  <PropertyGroup>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-  </PropertyGroup>
 
 </Project>
