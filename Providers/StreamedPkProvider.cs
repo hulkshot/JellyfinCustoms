@@ -48,7 +48,7 @@ namespace JellyfinCustoms.Providers
                     _logger.LogInformation("Fetching live matches from streamed.pk API");
 
                     var request = new HttpRequestMessage(HttpMethod.Get, $"{BaseApiUrl}/matches/live");
-                    var response = await client.SendAsync(request);
+                    var response = await SendWithFallbackAsync(client, request);
                     response.EnsureSuccessStatusCode();
 
                     var content = await response.Content.ReadAsStringAsync();
@@ -77,7 +77,7 @@ namespace JellyfinCustoms.Providers
                                 {
                                     e.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(60);
                                     var streamReq = new HttpRequestMessage(HttpMethod.Get, $"{BaseApiUrl}/stream/{src.Source}/{src.Id}");
-                                    var streamResp = await client.SendAsync(streamReq);
+                                    var streamResp = await SendWithFallbackAsync(client, streamReq);
                                     if (!streamResp.IsSuccessStatusCode) return new List<StreamInfo>();
 
                                     var streamContent = await streamResp.Content.ReadAsStringAsync();
@@ -132,6 +132,36 @@ namespace JellyfinCustoms.Providers
             using var md5 = System.Security.Cryptography.MD5.Create();
             var bytes = md5.ComputeHash(System.Text.Encoding.UTF8.GetBytes(input ?? string.Empty));
             return new Guid(bytes);
+        }
+
+        // Send an HTTP request, but if it fails due to name resolution for api.streamed.pk
+        // retry replacing the host with streamed.pk. This handles environments where
+        // api.streamed.pk is not resolvable but streamed.pk works.
+        private async Task<HttpResponseMessage> SendWithFallbackAsync(HttpClient client, HttpRequestMessage request)
+        {
+            try
+            {
+                return await client.SendAsync(request);
+            }
+            catch (HttpRequestException ex) when (ex.InnerException is System.Net.Sockets.SocketException && request.RequestUri != null)
+            {
+                if (request.RequestUri.Host.Contains("api.streamed.pk", StringComparison.OrdinalIgnoreCase))
+                {
+                    _logger.LogWarning(ex, "DNS lookup failed for {Host}, retrying with streamed.pk", request.RequestUri.Host);
+                    var builder = new UriBuilder(request.RequestUri)
+                    {
+                        Host = "streamed.pk"
+                    };
+                    using var retryReq = new HttpRequestMessage(request.Method, builder.Uri);
+                    foreach (var header in request.Headers)
+                    {
+                        retryReq.Headers.TryAddWithoutValidation(header.Key, header.Value);
+                    }
+                    return await client.SendAsync(retryReq);
+                }
+
+                throw;
+            }
         }
     }
 }
