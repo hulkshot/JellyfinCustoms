@@ -1,14 +1,37 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <!-- Target .NET 8.0 to match Jellyfin packages compatible with net8.0 -->
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <RootNamespace>JellyfinCustoms</RootNamespace>
+    <TargetFramework>net8.0</TargetFramework>
+
+    <!-- This ensures the plugin builds as a class library -->
+    <OutputType>Library</OutputType>
+
+    <!-- Optional: set nullable reference types -->
+    <Nullable>enable</Nullable>
+
+    <!-- Optional: generate XML documentation for plugin classes -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <!-- Plugin assembly info -->
     <AssemblyName>JellyfinCustoms</AssemblyName>
+    <RootNamespace>JellyfinCustoms</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Core Jellyfin packages (choose latest compatible with net8.0) -->
+    <PackageReference Include="Jellyfin.Common" Version="10.10.7" />
+    <PackageReference Include="Jellyfin.Model" Version="10.10.7" />
+    <PackageReference Include="Jellyfin.Controller" Version="10.10.2" />
+
+    <!-- Optional: Newtonsoft.Json is commonly used for serialization -->
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="RestSharp" Version="110.2.0" />
   </ItemGroup>
+
+  <!-- Optional: copy DLLs to output folder after build -->
+  <PropertyGroup>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
 
 </Project>
