@@ -27,7 +27,11 @@ namespace JellyfinCustoms.Providers
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger _logger;
         private readonly IMemoryCache _cache;
-        private const string BaseApiUrl = "https://streamed.pk/api";
+    private const string BaseApiUrl = "https://streamed.pk/api";
+    // Cache keys for failure/backoff handling
+    private const string BackoffUntilKey = "streamedpk_backoff_until";
+    private const string FailureCountKey = "streamedpk_failure_count";
+    private const string LastErrorLoggedKey = "streamedpk_last_error_logged";
 
         public StreamedPkProvider(IHttpClientFactory httpClientFactory, ILogger logger, IMemoryCache cache)
         {
@@ -38,6 +42,12 @@ namespace JellyfinCustoms.Providers
 
         public async Task<List<BaseItem>> GetLiveMatchesAsync()
         {
+            // If we're currently in backoff due to repeated failures, skip fetching
+            if (_cache.TryGetValue<DateTimeOffset>(BackoffUntilKey, out var until) && until > DateTimeOffset.UtcNow)
+            {
+                _logger.LogInformation("Skipping streamed.pk fetch until {Until} due to backoff", until);
+                return new List<BaseItem>();
+            }
             try
             {
                 using var client = _httpClientFactory.CreateClient();
@@ -117,11 +127,40 @@ namespace JellyfinCustoms.Providers
                     items.Add(video);
                 }
 
+                // On success, reset failure counter
+                _cache.Remove(FailureCountKey);
+                _cache.Remove(LastErrorLoggedKey);
+
                 return items;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching streamed.pk matches");
+                // Increment failure count
+                var failures = _cache.GetOrCreate(FailureCountKey, e =>
+                {
+                    e.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
+                    return 0;
+                });
+
+                failures++;
+                _cache.Set(FailureCountKey, failures, TimeSpan.FromHours(1));
+
+                // Compute exponential backoff: base 1 minute, double per failure, cap at 15 minutes
+                var backoffSeconds = Math.Min(60 * Math.Pow(2, Math.Max(0, failures - 1)), 15 * 60);
+                var backoffUntil = DateTimeOffset.UtcNow.AddSeconds(backoffSeconds);
+                _cache.Set(BackoffUntilKey, backoffUntil, backoffUntil - DateTimeOffset.UtcNow + TimeSpan.FromSeconds(1));
+
+                // Rate-limit error logging: log full error only once every 10 minutes
+                if (!_cache.TryGetValue<bool>(LastErrorLoggedKey, out var _))
+                {
+                    _logger.LogError(ex, "Error fetching streamed.pk matches");
+                    _cache.Set(LastErrorLoggedKey, true, TimeSpan.FromMinutes(10));
+                }
+                else
+                {
+                    _logger.LogDebug(ex, "Repeated error fetching streamed.pk (rate-limited)");
+                }
+
                 return new List<BaseItem>();
             }
         }
