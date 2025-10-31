@@ -3,31 +3,34 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MediaBrowser.Controller.Entities;
-using MediaBrowser.Controller.Library;
-using MediaBrowser.Model.Logging;
+using System.Net.Http;
+using Microsoft.Extensions.Logging;
 using JellyfinCustoms.Models;
 using JellyfinCustoms.Providers;
 
 namespace JellyfinCustoms.Library
 {
-    public class LiveSportsLibrary
+    public class LiveSportsLibrary : IDisposable
     {
         private readonly ILogger _logger;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly StreamedPkProvider _provider;
-        private readonly List<VideoItem> _currentMatches = new List<VideoItem>();
+        private readonly List<BaseItem> _currentMatches = new List<BaseItem>();
         private readonly object _lock = new object();
+        private readonly CancellationTokenSource _cts = new CancellationTokenSource();
 
-        public LiveSportsLibrary(ILogger logger, string apiKey)
+        public LiveSportsLibrary(ILogger logger, IHttpClientFactory httpClientFactory, string apiKey)
         {
             _logger = logger;
-            _provider = new StreamedPkProvider(logger, apiKey);
+            _httpClientFactory = httpClientFactory;
+            _provider = new StreamedPkProvider(httpClientFactory, logger, apiKey);
         }
 
         public void StartBackgroundRefresh()
         {
             Task.Run(async () =>
             {
-                while (true)
+                while (!_cts.Token.IsCancellationRequested)
                 {
                     try
                     {
@@ -35,10 +38,17 @@ namespace JellyfinCustoms.Library
                     }
                     catch (Exception ex)
                     {
-                        _logger.Error("Error refreshing Live Sports Library: " + ex.Message);
+                        _logger.LogError(ex, "Error refreshing Live Sports Library");
                     }
 
-                    await Task.Delay(TimeSpan.FromMinutes(1));
+                    try
+                    {
+                        await Task.Delay(TimeSpan.FromMinutes(1), _cts.Token);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        break;
+                    }
                 }
             });
         }
@@ -53,16 +63,22 @@ namespace JellyfinCustoms.Library
                 _currentMatches.AddRange(matches);
             }
 
-            _logger.Info($"Live Sports Library refreshed: {_currentMatches.Count} matches found.");
+            _logger.LogInformation("Live Sports Library refreshed: {Count} matches found", _currentMatches.Count);
         }
 
         // Optional method to expose matches to other parts of Jellyfin
-        public List<VideoItem> GetCurrentMatches()
+        public List<BaseItem> GetCurrentMatches()
         {
             lock (_lock)
             {
-                return new List<VideoItem>(_currentMatches);
+                return new List<BaseItem>(_currentMatches);
             }
+        }
+
+        public void Dispose()
+        {
+            _cts.Cancel();
+            _cts.Dispose();
         }
     }
 }

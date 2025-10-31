@@ -1,34 +1,60 @@
+using System;
+using System.Collections.Generic;
+using MediaBrowser.Common.Configuration;
 using MediaBrowser.Common.Plugins;
-using MediaBrowser.Controller.Plugins;
 using MediaBrowser.Model.Plugins;
+using MediaBrowser.Model.Serialization;
+using System.Net.Http;
+using Microsoft.Extensions.Logging;
 using JellyfinCustoms.Library;
 
 namespace JellyfinCustoms
 {
-    public class Plugin : BasePlugin<PluginConfiguration>
+    public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
     {
-        public static Plugin Instance { get; private set; }
+        private readonly ILogger<Plugin> _logger;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private LiveSportsLibrary _liveLibrary;
+        public static Plugin Instance { get; private set; } = null!;
 
-        public Plugin(IApplicationPaths applicationPaths, IXmlSerializer xmlSerializer)
+        public Plugin(
+            IApplicationPaths applicationPaths,
+            IXmlSerializer xmlSerializer,
+            ILoggerFactory loggerFactory,
+            IHttpClientFactory httpClientFactory)
             : base(applicationPaths, xmlSerializer)
         {
             Instance = this;
+            _logger = loggerFactory.CreateLogger<Plugin>();
+            _httpClientFactory = httpClientFactory;
+
+            // Initialize services
+            _liveLibrary = new LiveSportsLibrary(_logger, httpClientFactory, Configuration.ApiKey);
+            _liveLibrary.StartBackgroundRefresh();
+
+            // Register virtual folder provider
+            var virtualFolderProvider = new LiveSportsVirtualFolderProvider(_liveLibrary, _logger);
+            // TODO: Use proper DI registration in Jellyfin 10.8+
+            // Server.PluginManager.RegisterProvider(virtualFolderProvider);
         }
 
         public override string Name => "Jellyfin Customs - Streamed.pk";
         public override string Description => "Streams live sports from streamed.pk directly in Jellyfin.";
+        public override Guid Id => new Guid("c5f7eb0b-35de-4b89-94e8-1c66f3ea1c0c");
 
-        public override void Run()
+        public IEnumerable<PluginPageInfo> GetPages()
         {
-            base.Run();
-
-            // Start background refresh
-            var liveLibrary = new LiveSportsLibrary(Logger, Configuration.ApiKey);
-            liveLibrary.StartBackgroundRefresh();
-
-            // Register virtual folder provider
-            var virtualFolderProvider = new LiveSportsVirtualFolderProvider(liveLibrary, Logger);
-            MediaBrowser.Controller.Library.Providers.BaseItemProvider.RegisterProvider(virtualFolderProvider);
+            return new[]
+            {
+                new PluginPageInfo
+                {
+                    Name = "streamedpk",
+                    EmbeddedResourcePath = GetType().Namespace + ".Configuration.configPage.html",
+                    EnableInMainMenu = true,
+                    MenuSection = "server",
+                    DisplayName = "Streamed.pk"
+                }
+            };
         }
 
     }

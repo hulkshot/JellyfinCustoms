@@ -1,0 +1,10 @@
+{
+  "category": "Media",
+  "guid": "c5f7eb0b-35de-4b89-94e8-1c66f3ea1c0c",
+  "name": "Streamed.pk Live Sports",
+  "description": "Streams live sports from streamed.pk directly in Jellyfin",
+  "owner": "hulkshot",
+  "overview": "This plugin adds live sports streaming capabilities to Jellyfin via streamed.pk",
+  "targetAbi": "10.8.0.0",
+  "version": "1.0.0.0"
+}
