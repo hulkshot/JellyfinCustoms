@@ -21,7 +21,8 @@ namespace JellyfinCustoms
             IApplicationPaths applicationPaths,
             IXmlSerializer xmlSerializer,
             ILoggerFactory loggerFactory,
-            IHttpClientFactory httpClientFactory)
+            IHttpClientFactory httpClientFactory,
+            Microsoft.Extensions.Caching.Memory.IMemoryCache memoryCache)
             : base(applicationPaths, xmlSerializer)
         {
             Instance = this;
@@ -29,7 +30,7 @@ namespace JellyfinCustoms
             _httpClientFactory = httpClientFactory;
 
             // Initialize services
-            _liveLibrary = new LiveSportsLibrary(_logger, httpClientFactory, Configuration.ApiKey);
+            _liveLibrary = new LiveSportsLibrary(_logger, httpClientFactory, memoryCache);
             _liveLibrary.StartBackgroundRefresh();
 
             // Register virtual folder provider
@@ -49,7 +50,8 @@ namespace JellyfinCustoms
                 new PluginPageInfo
                 {
                     Name = "streamedpk",
-                    EmbeddedResourcePath = GetType().Namespace + ".Configuration.configPage.html",
+                    // Embedded resource lives under the Resources folder
+                    EmbeddedResourcePath = GetType().Namespace + ".Resources.configPage.html",
                     EnableInMainMenu = true,
                     MenuSection = "server",
                     DisplayName = "Streamed.pk"

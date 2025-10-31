@@ -7,12 +7,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Jellyfin.Common" Version="10.8.1" />
-    <PackageReference Include="Jellyfin.Controller" Version="10.8.1" />
-    <PackageReference Include="Jellyfin.Data" Version="10.8.1" />
-    <PackageReference Include="Jellyfin.Model" Version="10.8.1" />
+  <PackageReference Include="Jellyfin.Common" Version="10.11.1" />
+  <PackageReference Include="Jellyfin.Controller" Version="10.11.1" />
+  <PackageReference Include="Jellyfin.Data" Version="10.11.1" />
+  <PackageReference Include="Jellyfin.Model" Version="10.11.1" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
+  <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Embed the admin configuration page so Jellyfin can load it in the UI -->
+    <EmbeddedResource Include="Resources\configPage.html" />
+    <!-- Include plugin icon if present -->
+    <Content Include="Resources\icon.png" CopyToOutputDirectory="Never" />
   </ItemGroup>
 
 </Project>

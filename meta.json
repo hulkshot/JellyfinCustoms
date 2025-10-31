@@ -5,6 +5,6 @@
   "description": "Streams live sports from streamed.pk directly in Jellyfin",
   "owner": "hulkshot",
   "overview": "This plugin adds live sports streaming capabilities to Jellyfin via streamed.pk",
-  "targetAbi": "10.8.0.0",
+  "targetAbi": "10.11.1.0",
   "version": "1.0.0.0"
 }

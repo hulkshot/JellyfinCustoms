@@ -19,11 +19,11 @@ namespace JellyfinCustoms.Library
         private readonly object _lock = new object();
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
 
-        public LiveSportsLibrary(ILogger logger, IHttpClientFactory httpClientFactory, string apiKey)
+        public LiveSportsLibrary(ILogger logger, IHttpClientFactory httpClientFactory, Microsoft.Extensions.Caching.Memory.IMemoryCache cache)
         {
             _logger = logger;
             _httpClientFactory = httpClientFactory;
-            _provider = new StreamedPkProvider(httpClientFactory, logger, apiKey);
+            _provider = new StreamedPkProvider(httpClientFactory, logger, cache);
         }
 
         public void StartBackgroundRefresh()

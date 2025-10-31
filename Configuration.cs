@@ -5,6 +5,7 @@ namespace JellyfinCustoms
 {
     public class PluginConfiguration : BasePluginConfiguration
     {
-        public string ApiKey { get; set; } = "";
+        // No configuration required for streamed.pk by default. Keep the class
+        // so Jellyfin can still store any future settings without breaking.
     }
 }
