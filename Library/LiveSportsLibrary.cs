@@ -2,106 +2,94 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Jellyfin.Data.Entities;
 using MediaBrowser.Controller.Entities;
-using System.Net.Http;
+using MediaBrowser.Controller.Library;
+using MediaBrowser.Controller.Providers;
+using MediaBrowser.Model.Entities;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection;
-using JellyfinCustoms.Models;
 using JellyfinCustoms.Providers;
 
 namespace JellyfinCustoms.Library
 {
-    public class LiveSportsLibrary : IDisposable
+    public class LiveSportsLibrary : IServerEntryPoint
     {
-        private readonly ILogger _logger;
-        private readonly ILoggerFactory _loggerFactory;
-        private readonly IServiceScopeFactory _scopeFactory;
-        private readonly List<BaseItem> _currentMatches = new List<BaseItem>();
-        private readonly object _lock = new object();
-        private readonly CancellationTokenSource _cts = new CancellationTokenSource();
+        private readonly ILogger<LiveSportsLibrary> _logger;
+        private readonly ILibraryManager _libraryManager;
+        private readonly StreamedPkProvider _provider;
+        private Timer _timer;
 
-        public LiveSportsLibrary(ILoggerFactory loggerFactory, IServiceScopeFactory scopeFactory)
+        public LiveSportsLibrary(ILogger<LiveSportsLibrary> logger, ILibraryManager libraryManager, StreamedPkProvider provider)
         {
-            _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
-            _logger = loggerFactory.CreateLogger<LiveSportsLibrary>();
-            _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
+            _logger = logger;
+            _libraryManager = libraryManager;
+            _provider = provider;
         }
 
-        public void StartBackgroundRefresh()
+        public Task RunAsync()
         {
-            Task.Run(async () =>
-            {
-                while (!_cts.Token.IsCancellationRequested)
-                {
-                    try
-                    {
-                        // Create a service scope per refresh to avoid using disposed services
-                        using var scope = _scopeFactory.CreateScope();
-                        await RefreshMatches(scope.ServiceProvider);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Error refreshing Live Sports Library");
-                    }
-
-                    try
-                    {
-                        await Task.Delay(TimeSpan.FromMinutes(1), _cts.Token);
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        break;
-                    }
-                }
-            });
+            _logger.LogInformation("[StreamedPk] LiveSportsLibrary starting background refresh...");
+            _timer = new Timer(async _ => await RefreshMatches(), null, TimeSpan.Zero, TimeSpan.FromMinutes(5));
+            return Task.CompletedTask;
         }
 
-        private async Task RefreshMatches(IServiceProvider services)
+        public Task StopAsync()
+        {
+            _timer?.Dispose();
+            return Task.CompletedTask;
+        }
+
+        private async Task RefreshMatches()
         {
             try
             {
-                // Resolve per-scope services and construct a provider for this run
-                var httpClientFactory = services.GetService(typeof(IHttpClientFactory)) as IHttpClientFactory
-                    ?? throw new InvalidOperationException("IHttpClientFactory not available in scope");
-                var cache = services.GetService(typeof(Microsoft.Extensions.Caching.Memory.IMemoryCache)) as Microsoft.Extensions.Caching.Memory.IMemoryCache
-                    ?? throw new InvalidOperationException("IMemoryCache not available in scope");
-
-                var providerLoggerFactory = services.GetService(typeof(ILoggerFactory)) as ILoggerFactory ?? _loggerFactory;
-                var providerLogger = providerLoggerFactory.CreateLogger<StreamedPkProvider>();
-
-                var provider = new StreamedPkProvider(httpClientFactory, providerLogger, cache);
-
-                var matches = await provider.GetLiveMatchesAsync();
-
-                lock (_lock)
+                var matches = await _provider.GetLiveMatchesAsync();
+                if (matches == null || matches.Count == 0)
                 {
-                    _currentMatches.Clear();
-                    _currentMatches.AddRange(matches);
+                    _logger.LogWarning("[StreamedPk] No live matches found.");
+                    return;
                 }
 
-                _logger.LogInformation("Live Sports Library refreshed: {Count} matches found", _currentMatches.Count);
-            }
-            catch (ObjectDisposedException ex)
-            {
-                // Host is likely shutting down; stop further background refreshes quietly
-                _logger.LogWarning("Background refresh aborted due to disposed service: {Message}", ex.Message);
-                try { _cts.Cancel(); } catch { }
-            }
-        }
+                _logger.LogInformation("[StreamedPk] {Count} live matches found.", matches.Count);
 
-        // Optional method to expose matches to other parts of Jellyfin
-        public List<BaseItem> GetCurrentMatches()
-        {
-            lock (_lock)
-            {
-                return new List<BaseItem>(_currentMatches);
-            }
-        }
+                // Create (or update) a virtual library folder
+                var root = _libraryManager.RootFolder;
+                var liveSportsFolder = root.GetVirtualFolders().Find(x => x.Name == "Live Sports");
+                if (liveSportsFolder == null)
+                {
+                    liveSportsFolder = new Folder
+                    {
+                        Name = "Live Sports",
+                        DisplayMediaType = MediaType.Video
+                    };
+                    root.AddVirtualChild(liveSportsFolder);
+                    _logger.LogInformation("[StreamedPk] Created new Live Sports virtual folder.");
+                }
 
-        public void Dispose()
-        {
-            _cts.Cancel();
-            _cts.Dispose();
+                // Clear existing items
+                foreach (var child in liveSportsFolder.Children)
+                    liveSportsFolder.RemoveChild(child);
+
+                // Add new items
+                foreach (var match in matches)
+                {
+                    var item = new Video
+                    {
+                        Name = match.Title,
+                        Path = match.StreamUrl,
+                        Overview = match.Description ?? "Live sports stream",
+                        IsVirtualItem = true
+                    };
+                    liveSportsFolder.AddVirtualChild(item);
+                    _logger.LogInformation("[StreamedPk] Added match: {0}", match.Title);
+                }
+
+                _logger.LogInformation("[StreamedPk] Live Sports library refreshed.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[StreamedPk] Error refreshing live matches.");
+            }
         }
     }
 }

@@ -23,4 +23,9 @@
     <Content Include="Resources\icon.png" CopyToOutputDirectory="Never" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Configuration\configPage.html" />
+  </ItemGroup>
+
+
 </Project>
