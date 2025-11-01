@@ -1,31 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-  <TargetFramework>net9.0</TargetFramework>
-    <OutputType>Library</OutputType>
-    <Nullable>enable</Nullable>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>JellyfinCustoms</AssemblyName>
+    <RootNamespace>JellyfinCustoms</RootNamespace>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <LangVersion>12.0</LangVersion>
   </PropertyGroup>
 
-    <ItemGroup>
-  <PackageReference Include="Jellyfin.Common" Version="10.11.0" />
-  <PackageReference Include="Jellyfin.Controller" Version="10.11.0" />
-  <PackageReference Include="Jellyfin.Data" Version="10.11.0" />
-  <PackageReference Include="Jellyfin.Model" Version="10.11.0" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.10" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.10" />
-  <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.10" />
-  </ItemGroup>
-
   <ItemGroup>
-    <!-- Embed the admin configuration page so Jellyfin can load it in the UI -->
-    <EmbeddedResource Include="Resources\configPage.html" />
-    <!-- Include plugin icon if present -->
-    <Content Include="Resources\icon.png" CopyToOutputDirectory="Never" />
+    <PackageReference Include="Jellyfin.Plugin.Sdk" Version="10.8.0" />
+    <PackageReference Include="MediaBrowser.Common" Version="10.8.0" />
+    <PackageReference Include="MediaBrowser.Controller" Version="10.8.0" />
+    <PackageReference Include="MediaBrowser.Model" Version="10.8.0" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Configuration\configPage.html" />
   </ItemGroup>
-
 
 </Project>
