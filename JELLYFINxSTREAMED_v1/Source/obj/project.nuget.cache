@@ -1,0 +1,57 @@
+{
+  "version": 2,
+  "dgSpecHash": "VNCkXUkKjZU=",
+  "success": true,
+  "projectFilePath": "G:\\VSCode\\JellyfinCustoms\\JELLYFINxSTREAMED_v1\\Source\\JellyfinxStreamed.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\jessi\\.nuget\\packages\\jellyfin.sdk\\2021.11.20\\jellyfin.sdk.2021.11.20.nupkg.sha512",
+    "C:\\Users\\jessi\\.nuget\\packages\\microsoft.extensions.caching.abstractions\\9.0.10\\microsoft.extensions.caching.abstractions.9.0.10.nupkg.sha512",
+    "C:\\Users\\jessi\\.nuget\\packages\\microsoft.extensions.caching.memory\\9.0.10\\microsoft.extensions.caching.memory.9.0.10.nupkg.sha512",
+    "C:\\Users\\jessi\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\9.0.10\\microsoft.extensions.dependencyinjection.9.0.10.nupkg.sha512",
+    "C:\\Users\\jessi\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\9.0.10\\microsoft.extensions.dependencyinjection.abstractions.9.0.10.nupkg.sha512",
+    "C:\\Users\\jessi\\.nuget\\packages\\microsoft.extensions.logging\\9.0.10\\microsoft.extensions.logging.9.0.10.nupkg.sha512",
+    "C:\\Users\\jessi\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\9.0.10\\microsoft.extensions.logging.abstractions.9.0.10.nupkg.sha512",
+    "C:\\Users\\jessi\\.nuget\\packages\\microsoft.extensions.options\\9.0.10\\microsoft.extensions.options.9.0.10.nupkg.sha512",
+    "C:\\Users\\jessi\\.nuget\\packages\\microsoft.extensions.primitives\\9.0.10\\microsoft.extensions.primitives.9.0.10.nupkg.sha512",
+    "C:\\Users\\jessi\\.nuget\\packages\\system.text.encodings.web\\8.0.0\\system.text.encodings.web.8.0.0.nupkg.sha512",
+    "C:\\Users\\jessi\\.nuget\\packages\\system.text.json\\8.0.0\\system.text.json.8.0.0.nupkg.sha512"
+  ],
+  "logs": [
+    {
+      "code": "NU1603",
+      "level": "Warning",
+      "message": "JellyfinxStreamed depends on Jellyfin.Sdk (>= 10.11.1) but Jellyfin.Sdk 10.11.1 was not found. Jellyfin.Sdk 2021.11.20 was resolved instead.",
+      "projectPath": "G:\\VSCode\\JellyfinCustoms\\JELLYFINxSTREAMED_v1\\Source\\JellyfinxStreamed.csproj",
+      "warningLevel": 1,
+      "filePath": "G:\\VSCode\\JellyfinCustoms\\JELLYFINxSTREAMED_v1\\Source\\JellyfinxStreamed.csproj",
+      "libraryId": "Jellyfin.Sdk",
+      "targetGraphs": [
+        "net9.0"
+      ]
+    },
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "message": "Package 'System.Text.Json' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-8g4q-xg66-9fp4",
+      "projectPath": "G:\\VSCode\\JellyfinCustoms\\JELLYFINxSTREAMED_v1\\Source\\JellyfinxStreamed.csproj",
+      "warningLevel": 1,
+      "filePath": "G:\\VSCode\\JellyfinCustoms\\JELLYFINxSTREAMED_v1\\Source\\JellyfinxStreamed.csproj",
+      "libraryId": "System.Text.Json",
+      "targetGraphs": [
+        "net9.0"
+      ]
+    },
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "message": "Package 'System.Text.Json' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-hh2w-p6rv-4g7w",
+      "projectPath": "G:\\VSCode\\JellyfinCustoms\\JELLYFINxSTREAMED_v1\\Source\\JellyfinxStreamed.csproj",
+      "warningLevel": 1,
+      "filePath": "G:\\VSCode\\JellyfinCustoms\\JELLYFINxSTREAMED_v1\\Source\\JellyfinxStreamed.csproj",
+      "libraryId": "System.Text.Json",
+      "targetGraphs": [
+        "net9.0"
+      ]
+    }
+  ]
+}
