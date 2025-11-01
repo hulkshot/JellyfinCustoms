@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>JELLYFINxSTREAMED Configuration</title></head>
+<body>
+  <h1>JELLYFINxSTREAMED</h1>
+  <form id="config">
+    <label>Active domain override (leave blank = auto):<br/>
+      <input id="activeDomain" name="activeDomain" type="text" style="width:400px" />
+    </label><br/><br/>
+    <label>Parent check interval (days):<br/>
+      <input id="checkInterval" name="checkInterval" type="number" min="1" value="7" />
+    </label><br/><br/>
+    <button type="button" onclick="save()">Save</button>
+  </form>
+
+  <script>
+    // Simple UI that uses Jellyfin plugin config endpoints - adjust paths if needed
+    async function save() {
+      const cfg = {
+        ActiveDomain: document.getElementById('activeDomain').value,
+        ParentCheckIntervalDays: parseInt(document.getElementById('checkInterval').value || '7'),
+        EnableBackgroundMonitor: true
+      };
+      // This will POST to the jellyfin plugin configuration endpoint. Plugin side must implement.
+      await fetch('/JellyfinxStreamed/SaveConfig', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(cfg) });
+      alert('Saved (note: this page is a UI skeleton — server-side binding required)');
+    }
+  </script>
+</body>
+</html>
