@@ -9,20 +9,36 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Reference Include="Jellyfin.Data">
+      <HintPath>/tmp/jellyfin-source/Jellyfin.Data/bin/Release/net9.0/Jellyfin.Data.dll</HintPath>
+    </Reference>
+
+    <Reference Include="Jellyfin.Extensions">
+      <HintPath>/tmp/jellyfin-source/Jellyfin.Api/bin/Release/net9.0/Jellyfin.Extensions.dll</HintPath>
+    </Reference>
+
     <Reference Include="MediaBrowser.Model">
       <HintPath>/tmp/jellyfin-source/MediaBrowser.Model/bin/Release/net9.0/MediaBrowser.Model.dll</HintPath>
     </Reference>
-    <Reference Include="MediaBrowser.Controller">
-      <HintPath>/tmp/jellyfin-source/MediaBrowser.Controller/bin/Release/net9.0/MediaBrowser.Controller.dll</HintPath>
-    </Reference>
+
     <Reference Include="MediaBrowser.Common">
       <HintPath>/tmp/jellyfin-source/MediaBrowser.Common/bin/Release/net9.0/MediaBrowser.Common.dll</HintPath>
     </Reference>
-    <Reference Include="Jellyfin.Api">
-      <HintPath>/tmp/jellyfin-source/Jellyfin.Api/bin/Release/net9.0/Jellyfin.Api.dll</HintPath>
+
+    <Reference Include="MediaBrowser.Controller">
+      <HintPath>/tmp/jellyfin-source/MediaBrowser.Controller/bin/Release/net9.0/MediaBrowser.Controller.dll</HintPath>
     </Reference>
+
     <Reference Include="Jellyfin.Server.Implementations">
       <HintPath>/tmp/jellyfin-source/Jellyfin.Server.Implementations/bin/Release/net9.0/Jellyfin.Server.Implementations.dll</HintPath>
+    </Reference>
+
+    <Reference Include="Jellyfin.Drawing.Skia">
+      <HintPath>/tmp/jellyfin-source/Jellyfin.Server/bin/Release/net9.0/Jellyfin.Drawing.Skia.dll</HintPath>
+    </Reference>
+
+    <Reference Include="Jellyfin.Api">
+      <HintPath>/tmp/jellyfin-source/Jellyfin.Api/bin/Release/net9.0/Jellyfin.Api.dll</HintPath>
     </Reference>
   </ItemGroup>
 
